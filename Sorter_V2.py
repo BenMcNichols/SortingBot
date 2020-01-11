@@ -96,9 +96,10 @@ arduino.write(str.encode(servo_Pos))                          # write position t
 reachedPos = str(arduino.readline())            # read serial port for arduino echo
 print(reachedPos) 
 
-while True:
+#while True:
     #command = str(input ("Hit enter to continue: "))
-    if sort_counter == 5:
+'''
+    if sort_counter == 3:
         # ESC pressed
         print("Escape hit, closing...")
         break
@@ -115,105 +116,125 @@ while True:
     os.chdir('D:\Documents\PythonProjects\SortingBot')
     img_name = "TestPhoto.png"
     cv2.imwrite(img_name, frame)
-    print("{} written!".format(img_name))
+    #print("{} written!".format(img_name))
     sort_counter += 1
     
     time.sleep(1)
-    
+    '''
     
     # Match the image to the model
     
-    if __name__ == "__main__":
-      file_name = "D:/Documents/PythonProjects/SortingBot/TestPhoto.png"  # This is the image to be sorted
-      model_file = \
-        "D:/tmp/output_graph.pb"
-      label_file = "D:/tmp/output_labels.txt"
-      input_height = 299
-      input_width = 299
-      input_mean = 0
-      input_std = 255
-      input_layer = 'Placeholder'
-      output_layer = "final_result"
-    
-      parser = argparse.ArgumentParser()
-      parser.add_argument("--image", help="image to be processed")
-      parser.add_argument("--graph", help="graph/model to be executed")
-      parser.add_argument("--labels", help="name of file containing labels")
-      parser.add_argument("--input_height", type=int, help="input height")
-      parser.add_argument("--input_width", type=int, help="input width")
-      parser.add_argument("--input_mean", type=int, help="input mean")
-      parser.add_argument("--input_std", type=int, help="input std")
-      parser.add_argument("--input_layer", help="name of input layer")
-      parser.add_argument("--output_layer", help="name of output layer")
-      args = parser.parse_args()
-    
-      if args.graph:
+if __name__ == "__main__":
+    file_name = "D:/Documents/PythonProjects/SortingBot/TestPhoto.png"  # This is the image to be sorted
+    model_file = \
+      "D:/tmp/output_graph.pb"
+    label_file = "D:/tmp/output_labels.txt"
+    input_height = 299
+    input_width = 299
+    input_mean = 0
+    input_std = 255
+    input_layer = 'Placeholder'
+    output_layer = "final_result"
+  
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--image", help="image to be processed")
+    parser.add_argument("--graph", help="graph/model to be executed")
+    parser.add_argument("--labels", help="name of file containing labels")
+    parser.add_argument("--input_height", type=int, help="input height")
+    parser.add_argument("--input_width", type=int, help="input width")
+    parser.add_argument("--input_mean", type=int, help="input mean")
+    parser.add_argument("--input_std", type=int, help="input std")
+    parser.add_argument("--input_layer", help="name of input layer")
+    parser.add_argument("--output_layer", help="name of output layer")
+    args = parser.parse_args()
+  
+    if args.graph:
         model_file = args.graph
-      if args.image:
+    if args.image:
         file_name = args.image
-      if args.labels:
+    if args.labels:
         label_file = args.labels
-      if args.input_height:
+    if args.input_height:
         input_height = args.input_height
-      if args.input_width:
+    if args.input_width:
         input_width = args.input_width
-      if args.input_mean:
+    if args.input_mean:
         input_mean = args.input_mean
-      if args.input_std:
+    if args.input_std:
         input_std = args.input_std
-      if args.input_layer:
+    if args.input_layer:
         input_layer = args.input_layer
-      if args.output_layer:
+    if args.output_layer:
         output_layer = args.output_layer
-    
-      graph = load_graph(model_file)
-      t = read_tensor_from_image_file(
-          file_name,
-          input_height=input_height,
-          input_width=input_width,
-          input_mean=input_mean,
-          input_std=input_std)
-    
-      input_name = "import/" + input_layer
-      output_name = "import/" + output_layer
-      input_operation = graph.get_operation_by_name(input_name)
-      output_operation = graph.get_operation_by_name(output_name)
-    
-      with tf.compat.v1.Session(graph=graph) as sess:
-        results = sess.run(output_operation.outputs[0], {
-            input_operation.outputs[0]: t
-        })
-      results = np.squeeze(results)
-    
-      top_k = results.argsort()[-5:][::-1]
-      labels = load_labels(label_file)
-      for i in top_k:
-        print(labels[i], results[i])
-    topchoice = labels[top_k[0]]
-    print('top Choice is ', topchoice)
-    
-    if topchoice == "category1":
-        #Move Servo
-        servo_Pos = '0'
-        arduino.write(str.encode(servo_Pos))                          # write position to serial port
-        reachedPos = str(arduino.readline())            # read serial port for arduino echo
-        print(reachedPos)                               # print arduino echo to console
+  
+    graph = load_graph(model_file)
+    print("Model Loaded")
+    for i in range(5):  # This is how many times the program will iterate
+        
+        #Take an image from the webcam
+        time.sleep(3)
+        ret, frame = cam.read()
+        cv2.imshow("test", frame)
+        if not ret:
+            break
+        k = cv2.waitKey(1)
+     
+        # Take Image
+        os.chdir('D:\Documents\PythonProjects\SortingBot')
+        img_name = "TestPhoto.png"
+        cv2.imwrite(img_name, frame)
+        #print("{} written!".format(img_name))
+        
         time.sleep(1)
-        arduino.write(str.encode('90'))                          # write position to serial port
-        print("reset position 1")
         
-    if topchoice == "category2":
-        #Move Servo
-        servo_Pos = '160'
-        arduino.write(str.encode(servo_Pos))                          # write position to serial port
-        reachedPos = str(arduino.readline())            # read serial port for arduino echo
-        print(reachedPos)                               # print arduino echo to console
-        time.sleep(2)
-        arduino.write(str.encode('90'))                          #
-        print("reset position 2")
-        
-    #else:
-        #print("neither category")
+        t = read_tensor_from_image_file(
+            file_name,
+            input_height=input_height,
+            input_width=input_width,
+            input_mean=input_mean,
+            input_std=input_std)
+      
+        input_name = "import/" + input_layer
+        output_name = "import/" + output_layer
+        input_operation = graph.get_operation_by_name(input_name)
+        output_operation = graph.get_operation_by_name(output_name)
+      
+        with tf.compat.v1.Session(graph=graph) as sess:
+            results = sess.run(output_operation.outputs[0], {
+              input_operation.outputs[0]: t
+              })
+        results = np.squeeze(results)
+      
+        top_k = results.argsort()[-5:][::-1]
+        labels = load_labels(label_file)
+        for i in top_k:
+            print(labels[i], results[i])
+        topchoice = labels[top_k[0]]
+        #print('top Choice is ', topchoice)
+
+        if topchoice == "category1":
+            #Move Servo
+            servo_Pos = '0'
+            arduino.write(str.encode(servo_Pos))                          # write position to serial port
+            reachedPos = str(arduino.readline())            # read serial port for arduino echo
+            print(reachedPos)                               # print arduino echo to console
+            time.sleep(1)
+            arduino.write(str.encode('90'))                          # write position to serial port
+            print("reset position 1")
+            
+        if topchoice == "category2":
+            #Move Servo
+            servo_Pos = '160'
+            arduino.write(str.encode(servo_Pos))                          # write position to serial port
+            reachedPos = str(arduino.readline())            # read serial port for arduino echo
+            print(reachedPos)                               # print arduino echo to console
+            time.sleep(2)
+            arduino.write(str.encode('90'))                          #
+            #print("reset position 2")
+            
+        #else:
+            #print("neither category")
+                
 arduino.close()
      
 cam.release()
